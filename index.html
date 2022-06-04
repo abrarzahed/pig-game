@@ -2,12 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale= 0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <link rel="stylesheet" href="style.css" />
     <title>Pig Game</title>
   </head>
   <body>
+    <div class="notification">
+      <h3>🎉🎉🎉 Congratulation 🎉🎉🎉</h3>
+      <p>Player 1 won</p>
+    </div>
+    <div class="modal">
+      <div class="modal-content">
+        <form id="form">
+          <label for="texInput1">Player 1 name</label>
+          <input
+            class="text-input"
+            type="text"
+            id="texInput1"
+            placeholder="Mr. One"
+            required
+          />
+          <label id="label-2" for="texInput2">Player 2 name</label>
+          <input
+            class="text-input"
+            type="text"
+            id="texInput2"
+            placeholder="Mr. Two"
+            required
+          />
+          <button type="submit" id="ok">OK</button>
+        </form>
+      </div>
+    </div>
     <main>
       <section class="player player--0 player--active">
         <h2 class="name" id="name--0">Player 1</h2>
@@ -26,8 +53,8 @@
         </div>
       </section>
 
-      <img src="dice-5.png" alt="Playing dice" class="dice" />
-      <button class="btn btn--new">🔄 New game</button>
+      <img src="./dice-5.png" alt="Playing dice" class="dice" />
+      <button class="btn btn--new">🔄 Play Game</button>
       <button class="btn btn--roll">🎲 Roll dice</button>
       <button class="btn btn--hold">📥 Hold</button>
     </main>

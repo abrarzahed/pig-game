@@ -1,94 +1,141 @@
 'use strict';
 
+// Selection dom elements
+const playerName1 = document.getElementById('name--0');
+const playerName2 = document.getElementById('name--1');
+const scoreEl_1 = document.getElementById('score--0');
+const scoreEl_2 = document.getElementById('score--1');
+const diceEl = document.querySelector('.dice');
+const btnNew = document.querySelector('.btn--new');
+const btnRoll = document.querySelector('.btn--roll');
+const btnHold = document.querySelector('.btn--hold');
+const currentEl_1 = document.getElementById('current--0');
+const currentEl_2 = document.getElementById('current--1');
+const playerEL_1 = document.querySelector('.player--0');
+const playerEL_2 = document.querySelector('.player--1');
+const notification = document.querySelector('.notification');
+const okBtn = document.getElementById('ok');
+const modal = document.querySelector('.modal');
+const player1Input = document.getElementById('texInput1');
+const player2Input = document.getElementById('texInput2');
+const modalContent = document.querySelector('.modal-content');
 
-// SELECTING ELEMENTS.
-const player0Element = document.querySelector('.player--0')
-const player1Element = document.querySelector('.player--1')
-const score0Element = document.querySelector('#score--0');
-const score1Element = document.getElementById('score--1');
-const current0Element = document.getElementById('current--0')
-const current1Element = document.getElementById('current--1')
-const diceElement = document.querySelector('.dice')
-const btnNew = document.querySelector('.btn--new')
-const btnRoll = document.querySelector('.btn--roll')
-const btnHold = document.querySelector('.btn--hold')
+let activeOk = false;
 
+let scores, currentScore, activePlayer, isPlaying;
 
-// STARTING CONDITIONS.
-let scores, activePlayer, currentScore, playing
+const initGame = function () {
+  isPlaying = true;
+  scores = [0, 0];
+  currentScore = 0;
+  activePlayer = 0;
 
-const init = function () {
-    scores = [0, 0];
-    activePlayer = 0;
-    currentScore = 0;
-    playing = true;
+  scoreEl_1.textContent = 0;
+  scoreEl_2.textContent = 0;
+  currentEl_1.textContent = 0;
+  currentEl_2.textContent = 0;
 
-    score0Element.textContent = 0;
-    score1Element.textContent = 0;
-    current0Element.textContent = 0;
-    current1Element.textContent = 0;
+  diceEl.classList.remove('hidden');
+  document.querySelector(`.player--0`).classList.remove('player--winner');
+  document.querySelector(`.player--1`).classList.remove('player--winner');
+  document.querySelector(`.player--0`).classList.add('player--active');
+  document.querySelector(`.player--1`).classList.remove('player--active');
 
-    diceElement.classList.add('hidden');
-    player0Element.classList.remove('player--winner')
-    player1Element.classList.remove('player--winner')
-    player0Element.classList.add('player--active')
-    player1Element.classList.remove('player--active')
+  player1Input.value = '';
+  player2Input.value = '';
+
+  playerName1.textContent = `PLAYER 1`;
+  playerName2.textContent = `PLAYER 2`;
+
+  modal.classList.remove('hiddenModal');
 };
 
-init();
+initGame();
 
 const switchPlayer = function () {
-    document.getElementById(`current--${activePlayer}`).textContent = 0;
-    activePlayer = activePlayer === 0 ? 1 : 0;
-    currentScore = 0;
-    player0Element.classList.toggle('player--active')
-    player1Element.classList.toggle('player--active')
+  document.getElementById(`current--${activePlayer}`).textContent = 0;
+  currentScore = 0;
+  activePlayer = activePlayer === 0 ? 1 : 0;
+  playerEL_1.classList.toggle('player--active');
+  playerEL_2.classList.toggle('player--active');
+  scores[activePlayer] += currentScore;
 };
 
+const rollDice = function () {
+  if (isPlaying) {
+    // generating random dice number
+    let dice = Math.trunc(Math.random() * 6) + 1;
 
+    // display dice
+    diceEl.classList.remove('hidden');
+    diceEl.src = `./dice-${dice}.png`;
 
-// ROLLING DICE FUNCTIONALITY.
-btnRoll.addEventListener('click', function () {
-    if (playing) {
-
-        // 1. Generating random dice
-        const dice = Math.trunc(Math.random() * 6) + 1;
-        // 2.Display the dice
-        diceElement.classList.remove('hidden');
-        diceElement.src = `dice-${dice}.png`;
-        // 3.Check if disc rolled 1  
-        if (dice !== 1) {
-            // add dice to the current score.
-            currentScore += dice;
-            document.getElementById(`current--${activePlayer}`).textContent = currentScore;
-        } else {
-            // switch to other player
-            switchPlayer();
-        }
+    //  check for rolled 1
+    if (dice !== 1) {
+      currentScore += dice;
+      document.getElementById(`current--${activePlayer}`).textContent =
+        currentScore;
+      // switch to to next player
+    } else {
+      switchPlayer();
     }
-});
+  }
+};
 
-btnHold.addEventListener('click', function () {
-    if (playing) {
+const holdDice = function () {
+  if (isPlaying) {
+    //  add current score to active players score
+    scores[activePlayer] += currentScore;
+    document.getElementById(`score--${activePlayer}`).textContent =
+      scores[activePlayer];
+    // if players score >= 100, finish game
+    if (scores[activePlayer] >= 100) {
+      isPlaying = false;
+      diceEl.classList.add('hidden');
+      document
+        .querySelector(`.player--${activePlayer}`)
+        .classList.add('player--winner');
 
-        // 1. Add current score to the total score
-        scores[activePlayer] += currentScore;
-        document.getElementById(`score--${activePlayer}`).textContent = scores[activePlayer];
+      const winner = document
+        .querySelector('.player--winner')
+        .querySelector('.name').textContent;
 
-        // 2.check if total score is >= 100
-        if (scores[activePlayer] >= 10) {
-            // Finish the game
-            diceElement.classList.add('hidden');
-            playing = false;
-            document.querySelector(`.player--${activePlayer}`).classList.add('player--winner');
-            document.querySelector(`.player--${activePlayer}`).classList.remove('player--active');
+      document
+        .querySelector(`.player--${activePlayer}`)
+        .classList.remove('player--active');
 
-        } else {
-            // 4.Switch to the next player
-            switchPlayer();
-        }
+      const notificationElement = notification.querySelector('p');
+      notificationElement.textContent = `${winner} You Made It`;
+
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+        // notificationElement.textContent = ``;
+      }, 8000);
+    } else {
+      // switch to the next player
+      switchPlayer();
     }
+  }
+};
 
+btnRoll.addEventListener('click', rollDice);
+btnHold.addEventListener('click', holdDice);
+btnNew.addEventListener('click', initGame);
+
+okBtn.addEventListener('click', function (e) {
+  e.preventDefault();
+  const form = document.getElementById('form');
+  if (form.checkValidity()) {
+    modal.classList.add('hiddenModal');
+    playerName1.textContent = player1Input.value.toLocaleUpperCase();
+    playerName2.textContent = player2Input.value.toLocaleUpperCase();
+  } else {
+    modalContent.classList.add('blink');
+    // this.classList.add('blink');
+    setTimeout(() => {
+      modalContent.classList.remove('blink');
+      // this.classList.remove('blink');
+    }, 400);
+  }
 });
-
-btnNew.addEventListener('click', init);
